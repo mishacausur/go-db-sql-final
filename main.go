@@ -97,7 +97,11 @@ func (s ParcelService) Delete(number int) error {
 }
 
 func main() {
-	db, _ := sql.Open("sqlite", "tracker.db")
+	db, err := sql.Open("sqlite", "tracker.db")
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	store := NewParcelStore(db)
 	service := NewParcelService(store)

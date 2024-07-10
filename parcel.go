@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 
 	_ "modernc.org/sqlite"
 )
@@ -47,16 +48,22 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 	rows, err := s.db.Query("SELECT * FROM parcel WHERE client = :client", sql.Named("client", client))
 
 	if err != nil {
-		return []Parcel{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
 		var parcel Parcel
 		err = rows.Scan(&parcel.Number, &parcel.Client, &parcel.Status, &parcel.Address, &parcel.CreatedAt)
 		if err != nil {
-			return []Parcel{}, err
+			return nil, err
 		}
 		res = append(res, parcel)
+	}
+
+	err = rows.Err()
+
+	if err != nil {
+		return nil, err
 	}
 
 	return res, nil
@@ -70,7 +77,17 @@ func (s ParcelStore) SetStatus(number int, status string) error {
 }
 
 func (s ParcelStore) SetAddress(number int, address string) error {
-	_, err := s.db.Exec("UPDATE parcel SET address = :address WHERE number = :number",
+
+	p, err := s.Get(number)
+
+	if err != nil {
+		return err
+	}
+
+	if p.Status != "registered" {
+		errors.New("wrong parcel status")
+	}
+	_, err = s.db.Exec("UPDATE parcel SET address = :address WHERE number = :number",
 		sql.Named("address", address),
 		sql.Named("number", number))
 	return err
