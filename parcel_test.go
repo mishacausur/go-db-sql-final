@@ -141,10 +141,10 @@ func TestGetByClient(t *testing.T) {
 	assert.Equal(t, len(storedParcels), len(parcelMap))
 
 	for _, parcel := range storedParcels {
-		require.NotEmpty(t, storedParcels[parcel.Number])
-
+		p, i := parcelMap[parcel.Number]
+		require.Equal(t, i, true)
+		parcel.Number = 0
+		p.Number = 0
+		assert.Equal(t, parcel, p)
 	}
-
-	// require.NotEmpty(t, storedParcels)
-	// assert.Equal(t, storedParcels, parcels)
 }
