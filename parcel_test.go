@@ -141,8 +141,8 @@ func TestGetByClient(t *testing.T) {
 	assert.Equal(t, len(storedParcels), len(parcelMap))
 
 	for _, parcel := range storedParcels {
-		p, i := parcelMap[parcel.Number]
-		require.Equal(t, i, true)
+		p, ok := parcelMap[parcel.Number]
+		require.True(t, ok)
 		parcel.Number = 0
 		p.Number = 0
 		assert.Equal(t, parcel, p)
